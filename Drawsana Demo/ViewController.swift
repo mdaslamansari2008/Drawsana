@@ -15,6 +15,11 @@ import QuickLook
  own UI, so this demo has a very simple one.
  */
 class ViewController: UIViewController {
+    
+    var textView = UITextView()
+    var highlightLayer = CAShapeLayer()
+    
+    
   struct Constants {
     static let colors: [UIColor?] = [
       .black,
@@ -79,9 +84,6 @@ class ViewController: UIViewController {
     LineTool(),
     ArrowTool(),
     RectTool(),
-    StarTool(),
-    TriangleTool(),
-    PentagonTool(),
   ] }()
 
   let strokeWidths: [CGFloat] = [
@@ -172,7 +174,28 @@ class ViewController: UIViewController {
       fillColorButton.widthAnchor.constraint(equalToConstant: 30),
       fillColorButton.heightAnchor.constraint(equalToConstant: 30),
     ])
+    
+    
+    
+    
+    
+    
+    highlightLayer.backgroundColor = nil
+    highlightLayer.fillColor = #colorLiteral(red: 0.4745098054, green: 0.8392156959, blue: 0.9764705896, alpha: 1)
+    highlightLayer.strokeColor = nil
+    view.layer.insertSublayer(highlightLayer, at: 0)
   }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        highlightLayer.frame = view.bounds
+        
+        
+    // textView.text = "Hello"
+     //setHighlightPath()
+    
+        
+    }
+
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -332,6 +355,8 @@ extension ViewController: SelectionToolDelegate {
 }
 
 extension ViewController: TextToolDelegate {
+
+    
   /// Don't modify text point. In reality you probably do want to modify it to
   /// make sure it's not below the keyboard.
   func textToolPointForNewText(tappedPoint: CGPoint) -> CGPoint {
@@ -355,6 +380,10 @@ extension ViewController: TextToolDelegate {
     //
     // The anchor point is changed so that the controls can be scaled correctly
     // in `textToolDidUpdateEditingViewTransform`.
+    
+   
+    
+    
 
     let makeView: (UIImage?) -> UIView = {
       let view = UIView()
@@ -382,6 +411,7 @@ extension ViewController: TextToolDelegate {
 
     let buttonSize: CGFloat = 36
     let halfButtonSize = buttonSize / 2
+    
 
     editingView.addControl(dragActionType: .delete, view: makeView(UIImage(named: "icon_delete"))) { (textView, deleteControlView) in
       deleteControlView.layer.anchorPoint = CGPoint(x: 1, y: 1)

@@ -21,6 +21,9 @@ public class TextShapeEditingView: UIView {
 
   /// The `UITextView` that the user interacts with during editing
   public let textView: UITextView
+  
+  private var highlightLayer = CAShapeLayer()
+
 
   public enum DragActionType {
     case delete
@@ -36,12 +39,16 @@ public class TextShapeEditingView: UIView {
   public private(set) var controls = [Control]()
 
   init(textView: UITextView) {
+    
     self.textView = textView
     super.init(frame: .zero)
 
     clipsToBounds = false
     backgroundColor = .clear
     layer.isOpaque = false
+    
+    //Highlight background -- aslam
+    highlightText()
 
     textView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -53,7 +60,14 @@ public class TextShapeEditingView: UIView {
 
     changeWidthControlView.translatesAutoresizingMaskIntoConstraints = false
     changeWidthControlView.backgroundColor = .yellow
+ 
+   // self.textView.backgroundColor = UIColor.red
+    let paragraph = NSMutableParagraphStyle()
+    paragraph.alignment = .center
+    self.textView.attributedText = NSAttributedString(string: "string",
+                                                 attributes: [.paragraphStyle: paragraph])
 
+    
     addSubview(textView)
 
     NSLayoutConstraint.activate([
@@ -64,6 +78,14 @@ public class TextShapeEditingView: UIView {
     ])
   }
 
+  func highlightText(){
+    highlightLayer.backgroundColor = nil
+    highlightLayer.fillColor = #colorLiteral(red: 0.4745098054, green: 0.8392156959, blue: 0.9764705896, alpha: 1)
+    highlightLayer.strokeColor = nil
+    layer.insertSublayer(highlightLayer, at: 0)
+
+  }
+  
   required public init?(coder aDecoder: NSCoder) {
     fatalError()
   }
@@ -125,6 +147,32 @@ public class TextShapeEditingView: UIView {
       }
     }
     return nil
+  }
+  
+  public override func layoutSubviews() {
+    setHighlightPath()
+  }
+  
+  func setHighlightPath() {
+    let textLayer = self.textView.layer
+    let textContainerInset = self.textView.textContainerInset
+    let uiInset = CGFloat(0)
+    let radius = CGFloat(8)
+    let highlightLayer = self.highlightLayer
+    let layout = self.textView.layoutManager
+    let range = NSMakeRange(0, layout.numberOfGlyphs)
+    var rects = [CGRect]()
+    layout.enumerateLineFragments(forGlyphRange: range) { (_, usedRect, _, _, _) in
+      if usedRect.width > 0 && usedRect.height > 0 {
+        var rect = usedRect
+        rect.origin.x += textContainerInset.left
+        rect.origin.y += textContainerInset.top
+        rect = highlightLayer.convert(rect, from: textLayer)
+        rect = rect.insetBy(dx: uiInset, dy: uiInset)
+        rects.append(rect)
+      }
+    }
+    highlightLayer.path = CGPath.makeUnion(of: rects, cornerRadius: radius)
   }
 }
 
