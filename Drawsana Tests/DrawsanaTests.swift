@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import AMDrawingView
+//@testable import DrawingView
 
 class AMDrawingViewTests: XCTestCase {
     
